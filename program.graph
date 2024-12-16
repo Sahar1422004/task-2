@@ -1,0 +1,104 @@
+﻿using System;
+using System.Collections.Generic;
+
+class Program
+{
+    
+    public class Edge
+    {
+        public int TargetNode { get; set; }
+        public int Weight { get; set; }
+
+        public Edge(int targetNode, int weight)
+        {
+            TargetNode = targetNode;
+            Weight = weight;
+        }
+    }
+
+    
+    static void PrimMST(List<List<Edge>> graph, int vertices)
+    {
+        
+        var pq = new SortedSet<(int weight, int node)>();
+
+        
+        int[] minEdge = new int[vertices];
+        for (int i = 0; i < vertices; i++) minEdge[i] = int.MaxValue;
+
+        
+        bool[] inMST = new bool[vertices];
+
+        
+        minEdge[0] = 0;
+        pq.Add((0, 0));
+
+        int mstWeight = 0;
+
+        
+        while (pq.Count > 0)
+        {
+            
+            var (weight, u) = pq.Min;
+            pq.Remove(pq.Min);
+
+            
+            if (inMST[u]) continue;
+
+            
+            inMST[u] = true;
+            mstWeight += weight;
+
+            
+            foreach (var edge in graph[u])
+            {
+                int v = edge.TargetNode;
+                int w = edge.Weight;
+
+                
+                if (!inMST[v] && w < minEdge[v])
+                {
+                    
+                    pq.Remove((minEdge[v], v));
+                    minEdge[v] = w;
+                    pq.Add((w, v));
+                }
+            }
+        }
+
+        
+        Console.WriteLine("Total weight of the MST: " + mstWeight);
+    }
+
+    
+    static void AddEdge(List<List<Edge>> graph, int u, int v, int weight)
+    {
+        graph[u].Add(new Edge(v, weight));
+        graph[v].Add(new Edge(u, weight));  
+    }
+
+    
+    static void Main(string[] args)
+    {
+        int vertices = 5;
+        var graph = new List<List<Edge>>(vertices);
+
+        
+        for (int i = 0; i < vertices; i++)
+        {
+            graph.Add(new List<Edge>());
+        }
+
+        
+        AddEdge(graph, 0, 1, 2);
+        AddEdge(graph, 0, 3, 6);
+        AddEdge(graph, 1, 2, 3);
+        AddEdge(graph, 1, 3, 8);
+        AddEdge(graph, 1, 4, 5);
+        AddEdge(graph, 2, 4, 7);
+        AddEdge(graph, 3, 4, 9);
+
+        
+        PrimMST(graph, vertices);
+    }
+}
